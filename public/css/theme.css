@@ -1,0 +1,27 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, "Roboto", "Helvetica Neue", "Droid Sans",
+    "ヒラギノ角ゴ ProN", "Hiragino Kaku Gothic ProN", "Meiryo", "メイリオ",
+    "Osaka", "MS PGothic", arial, sans-serif;
+}
+
+body {
+    background: #fffffe;
+}
+
+body, p {
+    color: #594a4e;
+}
+
+h1, h2, h3, h4, h5, h6, h7 {
+    color: #33272a;
+}
+
+.nav-link {
+    color: #594a4e;
+}
+
+main {
+    padding-top: 48px;
+}

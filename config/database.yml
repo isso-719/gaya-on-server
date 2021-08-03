@@ -1,0 +1,10 @@
+default_env: &default
+  adapter: postgresql
+  encoding: unicode
+  database: gaya_on
+
+development:
+  <<: *default
+
+production:
+  <<: *default
