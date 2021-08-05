@@ -20,15 +20,7 @@ end
 
 before '/room/:id' do
   if Room.find_by(room_id: params[:id]).nil?
-    Room.create(
-      room_id: params[:id]
-    )
-    shapes.each do |s|
-      Count.create(
-        room_id: Room.last.id,
-        shape: s
-      )
-    end
+    redirect '/room_not_found'
   end
 end
 
@@ -47,7 +39,31 @@ post '/:id/:shape/inc' do
 end
 
 
+get '/gen/room' do
+  @roomID = nil
+  while @roomID == nil || Room.find_by(room_id: @roomID).present?
+    @roomID = format("%0#{6}d", SecureRandom.random_number(10**6))
+  end
+  
+  Room.create(
+    room_id: @roomID
+  )
+  shapes.each do |s|
+    Count.create(
+      room_id: Room.last.id,
+      shape: s
+    )
+  end
+  
+  @logo = "../images/logo-color.svg"
+  erb :gen_room
+end
 
+
+get '/room_not_found' do
+  @logo = "../images/logo-color.svg"
+  erb :room_not_found
+end
 
 
 # electron処理
