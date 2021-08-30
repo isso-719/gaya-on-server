@@ -14,7 +14,7 @@ end
 
 get '/' do
   @logo = "images/logo-color.svg"
-  
+
   erb :index
 end
 
@@ -26,7 +26,7 @@ end
 
 get '/room/:id' do
   @logo = "../images/logo-color.svg"
-  
+
   @room = Room.find_by(room_id: params[:id])
   erb :room
 end
@@ -44,7 +44,7 @@ get '/gen/room' do
   while @roomID == nil || Room.find_by(room_id: @roomID).present?
     @roomID = format("%0#{6}d", SecureRandom.random_number(10**6))
   end
-  
+
   Room.create(
     room_id: @roomID
   )
@@ -54,7 +54,7 @@ get '/gen/room' do
       shape: s
     )
   end
-  
+
   @logo = "../images/logo-color.svg"
   erb :gen_room
 end
@@ -73,7 +73,7 @@ get '/:id/res' do
     count = Room.find_by(room_id: params[:id]).counts
     res = {}
     res.store("status", "success")
-    
+
     temp = {}
     shapes.each do |s|
       temp.store(s, count.find_by(shape: s).number)
