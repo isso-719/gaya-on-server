@@ -24,7 +24,7 @@ logs:
 
 .PHONY: open
 open:
-	open http://localhost:8080
+	open http://localhost:8081
 
 .PHONY: fmt
 fmt:
