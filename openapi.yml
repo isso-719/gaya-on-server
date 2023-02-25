@@ -1,0 +1,250 @@
+openapi: 3.0.0
+# ドキュメントの説明
+info:
+  version: 1.0.0
+  # ドキュメントタイトル
+  title: Gayaon API
+  # ドキュメントの説明
+  description:
+# エンドポイントルート
+servers:
+  - url: "http://localhost:8080/"
+tags:
+  - name: HealthCheck
+    description: ヘルスチェック用 API
+  - name: Room
+    description: Room API
+  - name: Message
+    description: Message API
+paths:
+  # HealthCheck グループ
+  /health-check:
+    get:
+      tags:
+        - HealthCheck
+      summary: ヘルスチェック
+      description: ヘルスチェックを行う
+      operationId: healthcheck
+      responses:
+        200:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  health_check:
+                    type: string
+                    example: "ok"
+  # Room グループ
+  /v1/room/create:
+    post:
+      tags:
+        - Room
+      summary: ルーム作成
+      description: ルームを作成する
+      operationId: createRoom
+      responses:
+        200:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "success"
+                  token:
+                    type: string
+                    example: "a1b2c3"
+        500:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "failed"
+                  error:
+                    type: string
+                    example: "error message"
+  /v1/room/find:
+    post:
+      tags:
+        - Room
+      summary: ルームの存在性確認
+      description: ルームの存在性を確認する
+      operationId: findRoom
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "a1b2c3"
+      responses:
+        200:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              examples:
+                ルームが存在する時:
+                  value:
+                    message: "found"
+                    token: "a1b2c3"
+#                ルームが存在しない時:
+#                  value:
+#                    message: "not found"
+#                    token: "a1b2c3"
+        400:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "failed"
+                  error:
+                    type: string
+                    example: "not found"
+        500:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "failed"
+                  error:
+                    type: string
+                    example: "error message"
+  # Message グループ
+  /v1/message/send:
+    post:
+      tags:
+        - Message
+      summary: メッセージ送信
+      description: メッセージを送信する
+      operationId: sendMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "a1b2c3"
+                message_type:
+                  type: string
+                  example: "text"
+                message_body:
+                  type: string
+                  example: "hello"
+      responses:
+        200:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "success"
+        400:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "failed"
+                  error:
+                    type: string
+                    example: "room not found"
+        500:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "failed"
+                  error:
+                    type: string
+                    example: "error message"
+  /v1/message/get-all:
+    post:
+      tags:
+        - Message
+      summary: メッセージ全件取得
+      description: 指定されたルームのメッセージを全て取得する
+      operationId: getAllMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  example: "a1b2c3"
+      responses:
+        200:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "success"
+                  messages:
+                    type: array
+                    items:
+                      example:
+                        - message_type: "text"
+                          message_body: "hello"
+                        - message_type: "emoji"
+                          message_body: "😀"
+        400:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "failed"
+                  error:
+                    type: string
+                    example: "room not found"
+        500:
+          description: レスポンスサンプル
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "failed"
+                  error:
+                    type: string
+                    example: "error message"

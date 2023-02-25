@@ -1,0 +1,49 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    volumes:
+      - ./:/go/src/app
+    tty: true
+    environment:
+      - MYSQL_HOST=db
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    platform: linux/amd64
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_volume:/var/lib/mysql
+#      - ./db/schema.sql:/docker-entrypoint-initdb.d/0-schema.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=g_gayaon
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=password
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "swagger-ui"
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./openapi.yml:/openapi.yml
+    environment:
+      SWAGGER_JSON: /openapi.yml
+
+  swagger-editor:
+    image: swaggerapi/swagger-editor
+    container_name: "swagger-editor"
+    ports:
+      - "8082:8080"
+
+volumes:
+  mysql_volume:
