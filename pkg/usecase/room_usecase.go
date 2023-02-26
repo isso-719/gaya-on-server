@@ -4,13 +4,16 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"github.com/isso-719/gaya-on-server/pkg/domain/model"
 	"github.com/isso-719/gaya-on-server/pkg/domain/service"
+	"golang.org/x/net/websocket"
 )
 
 type IFRoomUsecase interface {
 	Migrate() error
 	CreateRoom(context.Context) (string, error)
 	FindRoom(context.Context, string) (bool, error)
+	JoinRoom(context.Context, *websocket.Conn, string) error
 }
 
 type roomUsecase struct {
@@ -71,4 +74,61 @@ func (su *roomUsecase) FindRoom(ctx context.Context, token string) (bool, error)
 		return false, err
 	}
 	return ok, nil
+}
+
+// WebSocketClients は、接続しているクライアントの情報を保持する
+var WebSocketClients []*model.Client
+
+func removeWebSocketClient(ws *websocket.Conn) {
+	for i, v := range WebSocketClients {
+		if v.Conn == ws {
+			WebSocketClients = append(WebSocketClients[:i], WebSocketClients[i+1:]...)
+		}
+	}
+}
+
+func (su *roomUsecase) JoinRoom(ctx context.Context, ws *websocket.Conn, token string) error {
+	room, ok, err := su.roomService.FindRoom(ctx, token)
+	if err != nil {
+		return err
+	}
+	// WebSocket で通知して Disconnect させる
+	if !ok {
+		return errors.New("room not found")
+	}
+
+	// model.WebSocketClients にクライアントを append
+	WebSocketClients = append(WebSocketClients, &model.Client{
+		RoomID: room.ID,
+		Conn:   ws,
+	})
+
+	wsSndMsg := model.WebSocketContent{
+		RoomID: room.ID,
+		Event: model.WebSocketEvent{
+			Type: "connected",
+			Body: "success",
+		},
+	}
+	err = websocket.JSON.Send(ws, wsSndMsg)
+	if err != nil {
+		return err
+	}
+
+	// Close リクエストが来るまでループ
+	for {
+		wsRcvMsg := model.WebSocketContent{}
+		err := websocket.JSON.Receive(ws, &wsRcvMsg)
+		if err != nil {
+			removeWebSocketClient(ws)
+			break
+		}
+
+		if wsRcvMsg.Event.Type == "close" {
+			removeWebSocketClient(ws)
+			break
+		}
+	}
+
+	return nil
 }

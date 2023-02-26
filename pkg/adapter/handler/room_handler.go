@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/isso-719/gaya-on-server/pkg/usecase"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/net/websocket"
 	"net/http"
 )
 
@@ -69,15 +70,27 @@ func (sh *roomHandler) FindRoom() echo.HandlerFunc {
 	}
 }
 
-// TODO: JoinRoom : Start WebSocket connection
-//func (sh *roomHandler) JoinRoom() echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		ctx := c.Request().Context()
-//		token := c.Param("token")
-//		websocket.Handler(func(ws *websocket.Conn) {
-//			defer ws.Close()
-//			sh.usecase.JoinRoom(ctx, token, ws)
-//		}).ServeHTTP(c.Response(), c.Request())
-//		return nil
-//	}
-//}
+func (sh *roomHandler) JoinRoom() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+
+		token := c.Param("room_token")
+		if token == "" {
+			return c.JSON(http.StatusBadRequest, &ErrorResponse{
+				Message: "failed",
+				Error:   "token is required",
+			})
+		}
+
+		websocket.Handler(
+			func(ws *websocket.Conn) {
+				defer ws.Close()
+
+				err := sh.usecase.JoinRoom(ctx, ws, token)
+				if err != nil {
+					c.Logger().Error(err)
+				}
+			}).ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
+}

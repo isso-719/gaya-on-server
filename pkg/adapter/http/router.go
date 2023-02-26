@@ -24,8 +24,6 @@ func InitRouter() *echo.Echo {
 		middleware.Logger(),
 		middleware.Recover(),
 		middleware.CORS(),
-		// TODO: CSRF対策
-		// TODO: JWT認証
 	)
 
 	SQLConn := infra.NewSQLConnector()
@@ -58,6 +56,9 @@ func InitRouter() *echo.Echo {
 
 		relativePath = "/find"
 		roomGroup.POST(relativePath, handler.FindRoom())
+
+		relativePath = "/join/:room_token"
+		roomGroup.GET(relativePath, handler.JoinRoom())
 	}
 
 	// Message Group
