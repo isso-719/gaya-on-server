@@ -1,5 +1,7 @@
 package service
 
+//go:generate mockgen -source=room_service.go -destination=room_service_mock.go -package=service
+
 import (
 	"context"
 	"github.com/isso-719/gaya-on-server/pkg/domain/model"

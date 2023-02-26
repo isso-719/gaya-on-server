@@ -2,7 +2,7 @@ package infra
 
 import (
 	"context"
-	model "github.com/isso-719/gaya-on-server/pkg/domain/model"
+	"github.com/isso-719/gaya-on-server/pkg/domain/model"
 	"github.com/isso-719/gaya-on-server/pkg/domain/repository"
 	"github.com/jinzhu/gorm"
 )
