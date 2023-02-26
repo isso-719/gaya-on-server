@@ -118,3 +118,6 @@ fabric.properties
 
 # .env
 .env
+
+# .DS_Store
+.DS_Store
