@@ -22,7 +22,7 @@ func (s *messageRepository) Migrate() error {
 	return nil
 }
 
-func (s *messageRepository) CreateMessage(ctx context.Context, roomID uint, messageType, messageBody string) error {
+func (s *messageRepository) CreateMessage(ctx context.Context, roomID int64, messageType, messageBody string) error {
 	tx := s.DB.BeginTx(ctx, nil)
 	defer tx.RollbackUnlessCommitted()
 
@@ -38,7 +38,7 @@ func (s *messageRepository) CreateMessage(ctx context.Context, roomID uint, mess
 	return nil
 }
 
-func (s *messageRepository) GetAllMessages(ctx context.Context, roomID uint) ([]*model.MessageTypeAndBody, error) {
+func (s *messageRepository) GetAllMessages(ctx context.Context, roomID int64) ([]*model.MessageTypeAndBody, error) {
 	tx := s.DB.BeginTx(ctx, nil)
 	defer tx.RollbackUnlessCommitted()
 

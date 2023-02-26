@@ -90,7 +90,8 @@ func (sh *roomHandler) JoinRoom() echo.HandlerFunc {
 				if err != nil {
 					c.Logger().Error(err)
 				}
-			}).ServeHTTP(c.Response(), c.Request())
+			},
+		).ServeHTTP(c.Response(), c.Request())
 		return nil
 	}
 }

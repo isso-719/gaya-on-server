@@ -60,7 +60,7 @@ func (su *messageUsecase) CreateMessage(ctx context.Context, token, messageType,
 		Body: messageBody,
 	}
 	wsSndContent := model.WebSocketContent{
-		RoomID: room.ID,
+		RoomID: int64(room.ID),
 		Event: model.WebSocketEvent{
 			Type: "message",
 			Body: wsMsg,

@@ -6,7 +6,7 @@ import (
 )
 
 type Room struct {
-	ID        uint       `gorm:"primary_key" json:"id"`
+	ID        int64      `gorm:"primary_key" json:"id"`
 	Token     string     `json:"token"` // Room Token
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
@@ -15,15 +15,22 @@ type Room struct {
 
 // Websocket Client
 type Client struct {
-	RoomID uint
+	RoomID int64
 	Conn   *websocket.Conn
 }
 
 // Websocket Message
 type WebSocketContent struct {
-	RoomID uint
+	RoomID int64
 	Event  WebSocketEvent
 }
+
+const (
+	WS_Connected    = "connected"
+	WS_Disconnected = "disconnected"
+	WS_Error        = "error"
+	WS_Message      = "message"
+)
 
 // Websocket WebSocketEvent
 type WebSocketEvent struct {

@@ -87,13 +87,33 @@ func removeWebSocketClient(ws *websocket.Conn) {
 	}
 }
 
+func genWebSocketContent(roomID int64, mesType string, body string) model.WebSocketContent {
+	return model.WebSocketContent{
+		RoomID: roomID,
+		Event: model.WebSocketEvent{
+			Type: mesType,
+			Body: body,
+		},
+	}
+}
+
 func (su *roomUsecase) JoinRoom(ctx context.Context, ws *websocket.Conn, token string) error {
 	room, ok, err := su.roomService.FindRoom(ctx, token)
 	if err != nil {
+		wsSndMsg := genWebSocketContent(room.ID, model.WS_Error, err.Error())
+		err = websocket.JSON.Send(ws, wsSndMsg)
+		if err != nil {
+			return err
+		}
 		return err
 	}
 	// WebSocket で通知して Disconnect させる
 	if !ok {
+		wsSndMsg := genWebSocketContent(-1, model.WS_Error, "room not found")
+		err := websocket.JSON.Send(ws, wsSndMsg)
+		if err != nil {
+			return err
+		}
 		return errors.New("room not found")
 	}
 
@@ -103,13 +123,7 @@ func (su *roomUsecase) JoinRoom(ctx context.Context, ws *websocket.Conn, token s
 		Conn:   ws,
 	})
 
-	wsSndMsg := model.WebSocketContent{
-		RoomID: room.ID,
-		Event: model.WebSocketEvent{
-			Type: "connected",
-			Body: "success",
-		},
-	}
+	wsSndMsg := genWebSocketContent(room.ID, model.WS_Connected, "success")
 	err = websocket.JSON.Send(ws, wsSndMsg)
 	if err != nil {
 		return err

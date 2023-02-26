@@ -7,6 +7,6 @@ import (
 
 type IFMessageRepository interface {
 	Migrate() error
-	CreateMessage(ctx context.Context, roomID uint, messageType, messageBody string) error
-	GetAllMessages(ctx context.Context, roomID uint) ([]*model.MessageTypeAndBody, error)
+	CreateMessage(ctx context.Context, roomID int64, messageType, messageBody string) error
+	GetAllMessages(ctx context.Context, roomID int64) ([]*model.MessageTypeAndBody, error)
 }

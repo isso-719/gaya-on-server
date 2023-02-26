@@ -8,8 +8,8 @@ import (
 
 type IFMessageService interface {
 	Migrate() error
-	CreateMessage(ctx context.Context, roomID uint, messageType, messageBody string) error
-	GetAllMessages(ctx context.Context, roomID uint) ([]*model.MessageTypeAndBody, error)
+	CreateMessage(ctx context.Context, roomID int64, messageType, messageBody string) error
+	GetAllMessages(ctx context.Context, roomID int64) ([]*model.MessageTypeAndBody, error)
 }
 
 type messageService struct {
@@ -27,10 +27,10 @@ func (ss *messageService) Migrate() error {
 	return ss.messageRepository.Migrate()
 }
 
-func (ss *messageService) CreateMessage(ctx context.Context, roomID uint, messageType, messageBody string) error {
+func (ss *messageService) CreateMessage(ctx context.Context, roomID int64, messageType, messageBody string) error {
 	return ss.messageRepository.CreateMessage(ctx, roomID, messageType, messageBody)
 }
 
-func (ss *messageService) GetAllMessages(ctx context.Context, roomID uint) ([]*model.MessageTypeAndBody, error) {
+func (ss *messageService) GetAllMessages(ctx context.Context, roomID int64) ([]*model.MessageTypeAndBody, error) {
 	return ss.messageRepository.GetAllMessages(ctx, roomID)
 }

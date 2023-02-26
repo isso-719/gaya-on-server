@@ -8,8 +8,8 @@ const (
 )
 
 type Message struct {
-	ID        uint       `gorm:"primary_key" json:"id"`
-	RoomID    uint       `json:"room_id"` // Room ID
+	ID        uint64     `gorm:"primary_key" json:"id"`
+	RoomID    int64      `json:"room_id"` // Room ID
 	Type      string     `json:"type"`    // Message Type (text, emoji)
 	Body      string     `json:"body"`    // Message Body
 	CreatedAt time.Time  `json:"created_at"`
