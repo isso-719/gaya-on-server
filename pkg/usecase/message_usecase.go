@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/isso-719/gaya-on-server/pkg/domain/model"
 	"github.com/isso-719/gaya-on-server/pkg/domain/service"
+	"golang.org/x/net/websocket"
 )
 
 type IFMessageUsecase interface {
@@ -46,7 +47,36 @@ func (su *messageUsecase) CreateMessage(ctx context.Context, token, messageType,
 	if !ok {
 		return errors.New("room not found")
 	}
-	return su.messageService.CreateMessage(ctx, room.ID, messageType, messageBody)
+
+	// DB にメッセージを保存
+	err = su.messageService.CreateMessage(ctx, room.ID, messageType, messageBody)
+	if err != nil {
+		return err
+	}
+
+	// WebSocket でメッセージを送信
+	wsMsg := model.MessageTypeAndBody{
+		Type: messageType,
+		Body: messageBody,
+	}
+	wsSndContent := model.WebSocketContent{
+		RoomID: room.ID,
+		Event: model.WebSocketEvent{
+			Type: "message",
+			Body: wsMsg,
+		},
+	}
+	for _, wc := range WebSocketClients {
+		if room.ID == wc.RoomID {
+			err := websocket.JSON.Send(wc.Conn, wsSndContent)
+			if err != nil {
+				removeWebSocketClient(wc.Conn)
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (su *messageUsecase) GetAllMessages(ctx context.Context, token string) ([]*model.MessageTypeAndBody, error) {
