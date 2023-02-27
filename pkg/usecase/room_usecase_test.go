@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-// TestgenerateRandomToken : generateRandomTokenのテスト、指定された文字列の長さと規定の文字列のみを含むかを確認する
-func TestgenerateRandomToken(t *testing.T) {
+// TestGenerateRandomToken : generateRandomTokenのテスト、指定された文字列の長さと規定の文字列のみを含むかを確認する
+func TestGenerateRandomToken(t *testing.T) {
 	token, err := generateRandomToken(6)
 	if err != nil {
 		t.Error(err)
