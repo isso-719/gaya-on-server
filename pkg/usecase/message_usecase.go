@@ -40,6 +40,9 @@ func (su *messageUsecase) CreateMessage(ctx context.Context, token, messageType,
 	if messageBody == "" {
 		return errors.New("messageBody is empty")
 	}
+	if messageType == model.MessageTypeEmoji && len(messageBody) > 1 {
+		return errors.New("emoji type message must be one character")
+	}
 	room, ok, err := su.roomService.FindRoom(ctx, token)
 	if err != nil {
 		return err
@@ -60,7 +63,7 @@ func (su *messageUsecase) CreateMessage(ctx context.Context, token, messageType,
 		Body: messageBody,
 	}
 	wsSndContent := model.WebSocketContent{
-		RoomID: int64(room.ID),
+		RoomID: room.ID,
 		Event: model.WebSocketEvent{
 			Type: "message",
 			Body: wsMsg,

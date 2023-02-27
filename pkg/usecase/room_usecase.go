@@ -11,7 +11,7 @@ import (
 
 type IFRoomUsecase interface {
 	Migrate() error
-	CreateRoom(context.Context) (string, error)
+	CreateRoom(context.Context) (*string, error)
 	FindRoom(context.Context, string) (bool, error)
 	JoinRoom(context.Context, *websocket.Conn, string) error
 }
@@ -45,24 +45,24 @@ func generateRandomToken(digit uint32) (string, error) {
 	return result, nil
 }
 
-func (su *roomUsecase) CreateRoom(ctx context.Context) (string, error) {
+func (su *roomUsecase) CreateRoom(ctx context.Context) (*string, error) {
 	var token string
 	var err error
 	// ランダムなトークンを生成して、roomIDとしてDBに保存する
 	for {
 		token, err = generateRandomToken(6)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		ok, err := su.roomService.CreateRoom(ctx, token)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		if ok {
 			break
 		}
 	}
-	return token, nil
+	return &token, nil
 }
 
 func (su *roomUsecase) FindRoom(ctx context.Context, token string) (bool, error) {

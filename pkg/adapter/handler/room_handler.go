@@ -31,7 +31,7 @@ func (sh *roomHandler) CreateRoom() echo.HandlerFunc {
 		}
 		return c.JSON(http.StatusOK, &createRoomSuccessResponse{
 			Message: "success",
-			Token:   token,
+			Token:   *token,
 		})
 	}
 }
@@ -52,6 +52,12 @@ func (sh *roomHandler) FindRoom() echo.HandlerFunc {
 			return internalServerErrorResponse(c, err)
 		}
 		token := req.Token
+		if token == "" {
+			return c.JSON(http.StatusBadRequest, &ErrorResponse{
+				Message: "failed",
+				Error:   "token is required",
+			})
+		}
 		ok, err := sh.usecase.FindRoom(ctx, token)
 		if err != nil {
 			return internalServerErrorResponse(c, err)
