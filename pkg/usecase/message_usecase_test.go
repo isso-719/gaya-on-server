@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func Test_CreateMessage(t *testing.T) {
+func TestCreateMessage(t *testing.T) {
 	type Fields struct {
 		roomService    service.IFRoomService
 		messageService service.IFMessageService
@@ -128,7 +128,7 @@ func Test_CreateMessage(t *testing.T) {
 	}
 }
 
-func Test_GetAllMessages(t *testing.T) {
+func TestGetAllMessages(t *testing.T) {
 	type Fields struct {
 		roomService    service.IFRoomService
 		messageService service.IFMessageService

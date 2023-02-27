@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-// Test_generateRandomToken : generateRandomTokenのテスト、指定された文字列の長さと規定の文字列のみを含むかを確認する
-func Test_generateRandomToken(t *testing.T) {
+// TestgenerateRandomToken : generateRandomTokenのテスト、指定された文字列の長さと規定の文字列のみを含むかを確認する
+func TestgenerateRandomToken(t *testing.T) {
 	token, err := generateRandomToken(6)
 	if err != nil {
 		t.Error(err)
@@ -29,7 +29,7 @@ func Test_generateRandomToken(t *testing.T) {
 	}
 }
 
-func Test_CreateRoom(t *testing.T) {
+func TestCreateRoom(t *testing.T) {
 	type Fields struct {
 		roomService service.IFRoomService
 	}
@@ -107,7 +107,7 @@ func Test_CreateRoom(t *testing.T) {
 	}
 }
 
-func Test_FindRoom(t *testing.T) {
+func TestFindRoom(t *testing.T) {
 	type Fields struct {
 		roomService service.IFRoomService
 	}
@@ -232,6 +232,6 @@ func Test_FindRoom(t *testing.T) {
 }
 
 // TODO: implement me
-func Test_JoinRoom(t *testing.T) {
+func TestJoinRoom(t *testing.T) {
 
 }
