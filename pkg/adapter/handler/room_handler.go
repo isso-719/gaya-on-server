@@ -63,11 +63,13 @@ func (sh *roomHandler) FindRoom() echo.HandlerFunc {
 			return internalServerErrorResponse(c, err)
 		}
 		if !ok {
-			return c.JSON(http.StatusBadRequest,
-				&findRoomResponse{
-					Message: "not found",
-					Token:   token,
-				})
+			return c.JSON(
+				http.StatusBadRequest,
+				&ErrorResponse{
+					Message: "failed",
+					Error:   "room not found",
+				},
+			)
 		}
 		return c.JSON(http.StatusOK, &findRoomResponse{
 			Message: "found",
