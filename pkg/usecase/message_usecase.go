@@ -40,9 +40,7 @@ func (su *messageUsecase) CreateMessage(ctx context.Context, token, messageType,
 	if messageBody == "" {
 		return errors.New("messageBody is empty")
 	}
-	if messageType == model.MessageTypeEmoji && len(messageBody) > 1 {
-		return errors.New("emoji type message must be one character")
-	}
+	// TODO: Emoji が 1 文字であることを確認 => バイト数により 1 文字判定でない場合もある
 	room, ok, err := su.roomService.FindRoom(ctx, token)
 	if err != nil {
 		return err

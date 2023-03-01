@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"github.com/golang/mock/gomock"
+	test_helper "github.com/isso-719/gaya-on-server/lib/test"
 	"github.com/isso-719/gaya-on-server/pkg/domain/model"
 	"github.com/isso-719/gaya-on-server/pkg/domain/service"
 	"reflect"
@@ -68,7 +69,7 @@ func TestCreateMessage(t *testing.T) {
 				}
 			},
 		},
-		// TODO: 絵文字メッセージの追加テストの実装, 絵文字が一文字でないときは受け入れない時の実装
+		// TODO: 絵文字メッセージの追加テストの実装, 絵文字が一文字でないときは受け入れない時の実装=> 1 文字はなし
 		//{
 		//	name: "正常, emoji メッセージを作成できる",
 		//	testContext: func(ctrl *gomock.Controller) *testContext {
@@ -105,25 +106,20 @@ func TestCreateMessage(t *testing.T) {
 		//},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, cancel := context.WithCancel(context.Background())
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			go func() {
+			t.Parallel()
+			test_helper.RunTestWithGoMock(t, func(ctrl *gomock.Controller) {
 				tc := tt.testContext(ctrl)
-				s := &messageUsecase{
+				u := &messageUsecase{
 					roomService:    tc.fields.roomService,
 					messageService: tc.fields.messageService,
 				}
-				err := s.CreateMessage(tc.args.ctx, tc.args.token, tc.args.messageType, tc.args.messageBody)
-				if err != nil {
-					t.Error(err)
+				err := u.CreateMessage(tc.args.ctx, tc.args.token, tc.args.messageType, tc.args.messageBody)
+				if !reflect.DeepEqual(err, tc.returns.err) {
+					t.Errorf("CreateMessage() error = %v, wantErr %v", err, tc.returns.err)
 				}
-
-				cancel()
-			}()
-			<-ctx.Done()
+			})
 		})
 	}
 }
@@ -199,28 +195,23 @@ func TestGetAllMessages(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, cancel := context.WithCancel(context.Background())
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			go func() {
+			t.Parallel()
+			test_helper.RunTestWithGoMock(t, func(ctrl *gomock.Controller) {
 				tc := tt.testContext(ctrl)
-				s := &messageUsecase{
+				u := &messageUsecase{
 					roomService:    tc.fields.roomService,
 					messageService: tc.fields.messageService,
 				}
-				messages, err := s.GetAllMessages(tc.args.ctx, tc.args.token)
-				if err != nil {
-					t.Error(err)
+				messages, err := u.GetAllMessages(tc.args.ctx, tc.args.token)
+				if !reflect.DeepEqual(err, tc.returns.err) {
+					t.Errorf("GetAllMessages() error = %v, wantErr %v", err, tc.returns.err)
 				}
 				if !reflect.DeepEqual(messages, tc.returns.messages) {
-					t.Errorf("messages = %v, want %v", messages, tc.returns.messages)
+					t.Errorf("GetAllMessages() messages = %v, want %v", messages, tc.returns.messages)
 				}
-
-				cancel()
-			}()
-			<-ctx.Done()
+			})
 		})
 	}
 }

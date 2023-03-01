@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/golang/mock/gomock"
+	test_helper "github.com/isso-719/gaya-on-server/lib/test"
 	"github.com/isso-719/gaya-on-server/pkg/domain/model"
 	"github.com/isso-719/gaya-on-server/pkg/domain/service"
 	"strings"
@@ -13,19 +14,76 @@ import (
 
 // TestGenerateRandomToken : generateRandomTokenのテスト、指定された文字列の長さと規定の文字列のみを含むかを確認する
 func TestGenerateRandomToken(t *testing.T) {
-	token, err := generateRandomToken(6)
-	if err != nil {
-		t.Error(err)
+	//token, err := generateRandomToken(6)
+	//if err != nil {
+	//	t.Error(err)
+	//}
+	//if len(token) != 6 {
+	//	t.Error("token length is invalid")
+	//}
+	//
+	//const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	//for _, v := range token {
+	//	if !strings.Contains(letters, string(v)) {
+	//		t.Error("token contains invalid character")
+	//	}
+	//}
+
+	type Args struct {
+		digit uint32
 	}
-	if len(token) != 6 {
-		t.Error("token length is invalid")
+	type Returns struct {
+		token *string
+		err   error
+	}
+	type testContext struct {
+		args    Args
+		returns Returns
 	}
 
-	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	for _, v := range token {
-		if !strings.Contains(letters, string(v)) {
-			t.Error("token contains invalid character")
-		}
+	tests := []struct {
+		name        string
+		testContext func(ctrl *gomock.Controller) *testContext
+	}{
+		{
+			name: "正常, トークンを生成して返す",
+			testContext: func(ctrl *gomock.Controller) *testContext {
+				// 6 文字のトークン
+				token := "123456"
+				return &testContext{
+					args: Args{
+						digit: 6,
+					},
+					returns: Returns{
+						token: &token,
+						err:   nil,
+					},
+				}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			ctx := tt.testContext(ctrl)
+			token, err := generateRandomToken(ctx.args.digit)
+			if err != nil {
+				t.Error(err)
+			}
+			// 使用できない文字が含まれていないか確認
+			const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+			for _, v := range token {
+				if !strings.Contains(letters, string(v)) {
+					t.Error("token contains invalid character")
+				}
+			}
+			// トークンの長さが正しいか確認
+			if len(token) != int(ctx.args.digit) {
+				t.Error("token length is invalid")
+			}
+		})
 	}
 }
 
@@ -51,7 +109,7 @@ func TestCreateRoom(t *testing.T) {
 		testContext func(ctrl *gomock.Controller) *testContext
 	}{
 		{
-			name: "正常, トークンを生成して返す",
+			name: "正常, 1 回目はエラーが発生し、2 回目は成功する",
 			testContext: func(ctrl *gomock.Controller) *testContext {
 				roomService := service.NewMockIFRoomService(ctrl)
 				roomService.EXPECT().CreateRoom(gomock.Any(), gomock.Any()).Return(false, errors.New("error")).Times(1)
@@ -74,35 +132,38 @@ func TestCreateRoom(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			ctx, cancel := context.WithCancel(context.Background())
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+			t.Parallel()
+			test_helper.RunTestWithGoMock(t, func(ctrl *gomock.Controller) {
+				tc := tt.testContext(ctrl)
+				u := &roomUsecase{
+					roomService: tc.fields.roomService,
+				}
 
-			tc := tt.testContext(ctrl)
-			s := &roomUsecase{
-				roomService: tc.fields.roomService,
-			}
-			go func() {
-				// 1 回目は被った前提で失敗する
-				token, err := s.CreateRoom(ctx)
+				// 1 回目はエラー
+				token, err := u.CreateRoom(tc.args.ctx)
 				if err == nil {
-					t.Error("error is nil")
+					t.Error("error should be returned")
 				}
 				if token != nil {
-					t.Error("token is not nil")
+					t.Error("token should be nil")
 				}
-				// 2 回目は成功する
-				token, err = s.CreateRoom(ctx)
+
+				// 2 回目は正常にトークンを生成する
+				token, err = u.CreateRoom(tc.args.ctx)
 				if err != nil {
 					t.Error(err)
 				}
 				if token == nil {
-					t.Error("token is nil")
+					t.Error("token should not be nil")
 				}
-				cancel()
-			}()
-			<-ctx.Done()
+
+				// トークンの長さが正しいか確認
+				if len(*token) != 6 {
+					t.Error("token length is invalid")
+				}
+			})
 		})
 	}
 }
@@ -212,21 +273,22 @@ func TestFindRoom(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			tc := tt.testContext(ctrl)
-			s := &roomUsecase{
-				roomService: tc.fields.roomService,
-			}
-			ok, err := s.FindRoom(tc.args.ctx, tc.args.roomId)
-			if err != nil && err.Error() != tc.returns.err.Error() {
-				t.Error("expected err is", tc.returns.err, "but actual is", err)
-			}
-			if ok != tc.returns.ok {
-				t.Error("expected ok is", tc.returns.ok, "but actual is", ok)
-			}
+			t.Parallel()
+			test_helper.RunTestWithGoMock(t, func(ctrl *gomock.Controller) {
+				tc := tt.testContext(ctrl)
+				s := &roomUsecase{
+					roomService: tc.fields.roomService,
+				}
+				ok, err := s.FindRoom(tc.args.ctx, tc.args.roomId)
+				if err != nil && err.Error() != tc.returns.err.Error() {
+					t.Error("expected err is", tc.returns.err, "but actual is", err)
+				}
+				if ok != tc.returns.ok {
+					t.Error("expected ok is", tc.returns.ok, "but actual is", ok)
+				}
+			})
 		})
 	}
 }
