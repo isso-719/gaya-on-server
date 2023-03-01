@@ -155,13 +155,13 @@ func TestCreateRoom(t *testing.T) {
 				if err != nil {
 					t.Error(err)
 				}
-				if token == nil {
+				if token != nil {
+					// 文字数が正しいか確認
+					if len(*token) != 6 {
+						t.Error("token length is invalid")
+					}
+				} else {
 					t.Error("token should not be nil")
-				}
-
-				// トークンの長さが正しいか確認
-				if len(*token) != 6 {
-					t.Error("token length is invalid")
 				}
 			})
 		})
