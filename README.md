@@ -2,7 +2,7 @@
 
 GayaON! という Web サービスで使用するサーバプログラムです。
 
-フロントエンドのプログラムは[こちら](https://example.com)。
+フロントエンドのプログラムは[こちら](https://github.com/isso-719/gaya-on-web)。
 
 クライアントプログラムは[こちら](https://github.com/isso-719/gaya-on-client)。
 
