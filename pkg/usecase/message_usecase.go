@@ -63,8 +63,8 @@ func (su *messageUsecase) CreateMessage(ctx context.Context, token, messageType,
 	wsSndContent := model.WebSocketContent{
 		RoomID: room.ID,
 		Event: model.WebSocketEvent{
-			Type: "message",
-			Body: wsMsg,
+			Type:    "message",
+			Content: wsMsg,
 		},
 	}
 	for _, wc := range WebSocketClients {

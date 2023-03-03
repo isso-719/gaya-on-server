@@ -88,8 +88,8 @@ func genWebSocketContent(roomID int64, mesType string, body string) model.WebSoc
 	return model.WebSocketContent{
 		RoomID: roomID,
 		Event: model.WebSocketEvent{
-			Type: mesType,
-			Body: body,
+			Type:    mesType,
+			Content: body,
 		},
 	}
 }

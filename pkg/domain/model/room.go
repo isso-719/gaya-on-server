@@ -34,6 +34,6 @@ const (
 
 // Websocket WebSocketEvent
 type WebSocketEvent struct {
-	Type string      `json:"type"`
-	Body interface{} `json:"body"`
+	Type    string      `json:"type"`
+	Content interface{} `json:"content"`
 }
