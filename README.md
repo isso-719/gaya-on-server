@@ -46,3 +46,7 @@ MYSQL_PASSWORD=password
 MYSQL_ADDRESS=db:3306
 MYSQL_DATABASE=g_gayaon
 ```
+
+## テストについて
+
+テストについてのドキュメントは[こちら](docs/TESTING_RULES.md)。
