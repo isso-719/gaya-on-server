@@ -29,7 +29,7 @@ func NewSQLConnector() *SQLConnector {
 }
 
 func sqlConnInfo(sqlInfo config.SQLInfo) string {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true&loc=Local&charset=utf8mb4",
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true&loc=Local",
 		sqlInfo.SQLUser,
 		sqlInfo.SQLPassword,
 		sqlInfo.SQLAddress,
