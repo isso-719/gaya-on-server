@@ -23,6 +23,9 @@ func NewSQLConnector() *SQLConnector {
 	// Connector 作成時に自動でマイグレーションを実行する
 	conn.AutoMigrate()
 
+	// utf8mb4_general_ci に設定
+	conn.Exec(fmt.Sprintf("ALTER DATABASE %s CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci", conf.SQLInfo.SQLDBName))
+
 	return &SQLConnector{
 		Conn: conn,
 	}
